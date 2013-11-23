@@ -15,7 +15,7 @@ Gem::Specification.new do |g|
   g.add_development_dependency 'pry'
   g.add_development_dependency 'debugger'
 
-  g.files = `git ls-files`.split('\n')
+  g.files = `git ls-files`.split("\n")
   g.require_path = 'lib'
 
 end

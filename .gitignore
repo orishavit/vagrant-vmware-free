@@ -2,3 +2,4 @@ Vagrantfile
 .vagrant
 *.sublime-*
 .DS_Store
+*.gem
