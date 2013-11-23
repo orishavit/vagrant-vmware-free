@@ -6,8 +6,8 @@ Gem::Specification.new do |g|
   g.authors = 'Ori Shavit'
   g.email = 'ori@orishavit.com'
   g.homepage = 'http://orishavit.com'
-  g.summary = 'A free VMWare Workstaion/Fusion Vagrant prodiver'
-  g.description = 'A free VMWare Workstaion/Fusion Vagrant prodiver'
+  g.summary = 'A free VMWare Workstaion/Fusion Vagrant provider'
+  g.description = 'A free VMWare Workstaion/Fusion Vagrant provider'
 
   g.add_runtime_dependency 'CFPropertyList', '~> 2.0'
   g.add_runtime_dependency 'ffi', '~> 1.9.3'
