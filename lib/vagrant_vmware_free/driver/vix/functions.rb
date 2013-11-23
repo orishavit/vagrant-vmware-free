@@ -28,6 +28,10 @@ module VagrantPlugins
         attach_function :VixVM_WaitForToolsInGuest, [:VixHandle, :int, :pointer, :pointer], :VixHandle
 
         attach_function :VixVM_ReadVariable, [:VixHandle, :VixVariableType, :string, :int, :pointer, :pointer], :VixHandle
+
+        attach_function :VixVM_Delete, [:VixHandle, :VixVMDeleteOptions, :pointer, :pointer], :VixHandle
+
+        attach_function :VixVM_PowerOff, [:VixHandle, :VixVMPowerOpOptions, :pointer, :pointer], :VixHandle
       end
     end
   end

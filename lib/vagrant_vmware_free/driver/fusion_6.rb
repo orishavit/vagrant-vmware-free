@@ -7,6 +7,7 @@ module VagrantPlugins
     module Driver
       class Fusion_6 < Fusion
         include VagrantPlugins::ProviderVMwareFree::Util::VMX
+        include VagrantPlugins::ProviderVMwareFree::Driver::VIX
         INVENTORY = File.join(ENV['HOME'], '.vagrant.d', 'vmware.yml')
 
         attr_reader :vmx_path
@@ -29,9 +30,9 @@ module VagrantPlugins
         def import(vmx_file, dest_file)
           box_handle = open_vmx(@host_handle, vmx_file)
           jobHandle = VixVM_Clone(box_handle, :VIX_INVALID_HANDLE, :VIX_CLONETYPE_FULL, dest_file, 0, :VIX_INVALID_HANDLE, nil, nil)
-          code, values = VIX.wait(jobHandle)
+          code, values = wait(jobHandle)
 
-          raise VagrantPlugins::ProviderVMwareFree::Driver::VIX::VIXError, "VixError: #{code}" if (code != 0)
+          raise VIXError, "VixError: #{code}" if (code != 0)
           new_uuid = SecureRandom.uuid
 
           inventory = YAML.load_file(INVENTORY)
@@ -45,10 +46,23 @@ module VagrantPlugins
           new_uuid
         end
 
-        # def delete
-          # require 'debugger';
-          # debugger
-        # end
+        def delete
+          job_handle = VixVM_Delete(@vm_handle, :VIX_VMDELETE_DISK_FILES, nil, nil)
+          code, values = wait(job_handle)
+          raise VIXError, code: code if (code != 0)
+
+          inventory = YAML.load_file(INVENTORY)
+          inventory.delete @uuid
+          File.open(INVENTORY, 'wb') do |f|
+            f.write(inventory.to_yaml)
+          end
+
+          nil
+        end
+
+        def resume(mode='headless')
+          start(mode)
+        end
 
         def vm_exists?(uuid)
           inventory = YAML.load_file(INVENTORY)
@@ -106,19 +120,22 @@ module VagrantPlugins
           else
             mode = :VIX_VMPOWEROP_NORMAL
           end
-          mode = :VIX_VMPOWEROP_LAUNCH_GUI
 
-          jobHandle = VixVM_PowerOn(@vm_handle, mode, :VIX_INVALID_HANDLE, nil, nil)
-          code, values = VIX.wait(jobHandle)
-          raise VagrantPlugins::ProviderVMwareFree::Driver::VIX::VIXError, code: code if (code != 0)
+          jobHandle = VixVM_PowerOn(@vm_handle, :VIX_VMPOWEROP_NORMAL, :VIX_INVALID_HANDLE, nil, nil)
+          code, values = wait(jobHandle)
+          raise VIXError, code: code if (code != 0)
           nil
         end
 
+        def halt
+          code, values = wait(VixVM_PowerOff(@vm_handle, :VIX_VMPOWEROP_NORMAL, nil, nil))
+        end
+
         def read_state
-          code, state = VIX.get_properties(@vm_handle, [:VIX_PROPERTY_VM_POWER_STATE])
+          code, state = get_properties(@vm_handle, [:VIX_PROPERTY_VM_POWER_STATE])
           state = state[:VIX_PROPERTY_VM_POWER_STATE]
 
-          raise VagrantPlugins::ProviderVMwareFree::Driver::VIXError, "VixError: #{code}" if (code != 0)
+          raise VIXError, "VixError: #{code}" if (code != 0)
           @logger.debug("VM_POWER_STATE: #{state}")
 
           states_enum = VIX.enum_type(:VixPowerState)
@@ -144,9 +161,9 @@ module VagrantPlugins
           @logger.debug('Connecting to VIX...')
           jobHandle = VixHost_Connect(:VIX_API_VERSION, :VIX_SERVICEPROVIDER_VMWARE_WORKSTATION,
                                        '', 0, '', '', 0, :VIX_INVALID_HANDLE, nil, nil)
-          code, values = VIX.wait(jobHandle, [:VIX_PROPERTY_JOB_RESULT_HANDLE])
+          code, values = wait(jobHandle, [:VIX_PROPERTY_JOB_RESULT_HANDLE])
 
-          raise VagrantPlugins::ProviderVMwareFree::Driver::VIX::VIXError, code: code if (code != 0)
+          raise VIXError, code: code if (code != 0)
 
           values[:VIX_PROPERTY_JOB_RESULT_HANDLE]
         end
@@ -159,9 +176,9 @@ module VagrantPlugins
 
         def open_vmx(host_handle, vmx_path)
           jobHandle = VixHost_OpenVM(host_handle, vmx_path, :VIX_VMOPEN_NORMAL, :VIX_INVALID_HANDLE, nil, nil)
-          code, values = VIX.wait(jobHandle, [:VIX_PROPERTY_JOB_RESULT_HANDLE])
+          code, values = wait(jobHandle, [:VIX_PROPERTY_JOB_RESULT_HANDLE])
 
-          raise VagrantPlugins::ProviderVMwareFree::Driver::VIX::VIXError, code if (code != 0)
+          raise VIXError, code if (code != 0)
 
           values[:VIX_PROPERTY_JOB_RESULT_HANDLE]
         end

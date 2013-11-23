@@ -163,13 +163,15 @@ module VagrantPlugins
           b.use Call, Created do |env, b2|
             if env[:result]
               b2.use CheckAccessible
-              # b2.use DiscardState
 
               b2.use Call, IsPaused do |env2, b3|
                 next if !env2[:result]
                 b3.use Resume
               end
-
+              
+              b.use WaitForVMTools
+              b.use GetNetworkAddress
+              
               b2.use Call, GracefulHalt, :poweroff, :running do |env2, b3|
                 if !env2[:result]
                   b3.use ForcedHalt
@@ -182,7 +184,7 @@ module VagrantPlugins
         end
       end
 
-      def self.action_desstroy
+      def self.action_destroy
         Vagrant::Action::Builder.new.tap do |b|
           b.use Call, Created do |env1, b2|
             if !env1[:result]

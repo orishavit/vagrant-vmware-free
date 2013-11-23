@@ -8,10 +8,11 @@ module VagrantPlugins
 
         def call(env)
           current_state = env[:machine].provider.state.id
+          boot_mode = @env[:machine].provider_config.gui ? "gui" : "headless"
 
           if current_state == :paused
             env[:ui].info I18n.t("vagrant.actions.vm.resume.unpausing")
-            env[:machine].provider.driver.resume
+            env[:machine].provider.driver.resume(boot_mode)
           elsif current_state == :saved
             env[:ui].info I18n.t("vagrant.actions.vm.resume.resuming")
             env[:action_runner].run(Boot, env)

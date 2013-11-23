@@ -133,6 +133,10 @@ module VagrantPlugins
         :VIX_VM_CONFIG_RUNTIME_ONLY,      2,
         :VIX_GUEST_ENVIRONMENT_VARIABLE,  3,
       ]
+
+      enum :VixVMDeleteOptions, [
+        :VIX_VMDELETE_DISK_FILES, 0x0002,
+      ]
       end
     end
   end

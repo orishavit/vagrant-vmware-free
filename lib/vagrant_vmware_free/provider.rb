@@ -26,7 +26,8 @@ module VagrantPlugins
           @driver = Driver::Meta.new(id)
         rescue Driver::Meta::VMNotFound
           @logger.debug('VM not found')
-          raise
+          id = nil
+          retry
         end
       end
 
