@@ -43,7 +43,7 @@ GEM
       coderay (~> 1.0)
       method_source (~> 0.8)
       slop (~> 3.4)
-    rake (10.1.0)
+    rake (13.0.1)
     slop (3.4.7)
 
 PLATFORMS
