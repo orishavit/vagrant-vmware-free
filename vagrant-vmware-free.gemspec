@@ -10,7 +10,7 @@ Gem::Specification.new do |g|
   g.description = 'A free VMWare Workstaion/Fusion Vagrant provider'
 
   g.add_runtime_dependency 'CFPropertyList', '~> 2.0'
-  g.add_runtime_dependency 'ffi', '~> 1.9.3'
+  g.add_runtime_dependency 'ffi', '>= 1.9.3', '< 1.16.0'
   g.add_development_dependency 'rake'
   g.add_development_dependency 'pry'
   g.add_development_dependency 'debugger'
